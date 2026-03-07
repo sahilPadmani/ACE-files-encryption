@@ -5,6 +5,7 @@
 #include "KeyHandler/KeyHandler.h"
 
 // ===== Main =====
+#include <cstring>
 #include <string>
 
 namespace fs = std::filesystem;
@@ -37,21 +38,37 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    if (mode == "--printKey"){
+        if (load_key() != LOAD_KEY_SUCCESS) {
+            std::cerr << "Failed to load AES key from USB.\n";
+            return 1;
+        }
+        printKey();
+        return 0;
+    }
+
+    if (argc == 4 && strcmp(argv[3],"-e") == 0 ) {
+        std::cout << "fallback Key is use.\n";
+        load_emergency_key();
+        goto skip_key_loading;
+    }
+
     if (argc != 3) {
         std::cerr << "Usage: <--enc|--dec> <folder>\n";
         return 1;
     }
 
+    if (load_key() != LOAD_KEY_SUCCESS) {
+        std::cerr << "Failed to load AES key from USB.\n";
+        return 1;
+    }
+
+    skip_key_loading:
+
     fs::path folder = argv[2];
 
     if (!fs::exists(folder) || !fs::is_directory(folder)) {
         std::cerr << "Folder does not exist or is not a directory: " << folder << "\n";
-        return 1;
-    }
-
-    int status = load_key();
-    if (status != LOAD_KEY_SUCCESS) {
-        std::cerr << "Failed to load AES key from USB.\n";
         return 1;
     }
 

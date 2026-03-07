@@ -31,6 +31,7 @@ inline void load_emergency_key() {
     std::memcpy(key, emergency_key, KEY_SIZE);
 }
 
+
 inline void printKey() {
     std::cout << "{";
     for (size_t i = 0; i < KEY_SIZE; ++i) {

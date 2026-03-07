@@ -1,0 +1,16 @@
+//
+// Created by sahil on 3/7/26.
+//
+
+#ifndef FILESENCRYPTION_DEFINES_H
+#define FILESENCRYPTION_DEFINES_H
+
+#define KEY_SIZE 32
+#define IV_SIZE 12
+#define TAG_SIZE 16
+#define BUF_SIZE 4096
+
+#define LOADING_KEY_FAILED 1
+#define LOAD_KEY_SUCCESS 0
+
+#endif //FILESENCRYPTION_DEFINES_H

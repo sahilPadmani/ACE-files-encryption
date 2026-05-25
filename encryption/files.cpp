@@ -25,10 +25,12 @@ std::string encrypt_name(std::string_view name) {
     char out[33] = {};
     for(int i=0;i<16;i++)
         sprintf(out + i*2,"%02x", hash[i]);
-    return std::string(out);
+    return out;
 }
 
 bool encrypt_file(const fs::path &in, const fs::path &out) {
+    const fs::perms perms = get_file_permissions(in);
+
     FILE *fin = fopen(in.c_str(), "rb");
     if (!fin) return false;
 
@@ -61,10 +63,13 @@ bool encrypt_file(const fs::path &in, const fs::path &out) {
     EVP_CIPHER_CTX_free(ctx);
     fclose(fin);
     fclose(fout);
+    apply_file_permissions(out,perms);
     return true;
 }
 
 bool decrypt_file(const fs::path &in, const fs::path &out) {
+    const fs::perms perms = get_file_permissions(in);
+
     FILE *fin = fopen(in.c_str(), "rb");
     if (!fin) return false;
 
@@ -97,7 +102,7 @@ bool decrypt_file(const fs::path &in, const fs::path &out) {
 
     if(EVP_DecryptFinal_ex(ctx, plaintext.data() + outlen1, &outlen2) <= 0) {
         EVP_CIPHER_CTX_free(ctx);
-        std::cerr << "Integrity check failed: " << in << "\n";
+        std::cout << "Integrity check failed: " << in << "\n";
         return false;
     }
 
@@ -108,6 +113,9 @@ bool decrypt_file(const fs::path &in, const fs::path &out) {
 
     fwrite(plaintext.data(), 1, outlen1 + outlen2, fout);
     fclose(fout);
+
+    apply_file_permissions(out,perms);
+
     return true;
 }
 
@@ -165,7 +173,7 @@ void load_mapping(const fs::path &mapfile) {
 
     fs::path tmp = mapfile.string() + ".tmp";
     if(!decrypt_file(mapfile, tmp)) {
-        std::cerr << "Failed to decrypt mapping file: " << mapfile << "\n";
+        std::cout << "Failed to decrypt mapping file: " << mapfile << "\n";
         return;
     }
 
@@ -203,6 +211,7 @@ void start_encrypt_dir(const fs::path &in , const fs::path& mapping_file) {
         save_mapping(in);
 
         fs::remove_all(backup);
+        fs::remove_all(tmpFolder);
         protect_file(mapping_file.c_str());
     }
     catch (...) {
@@ -234,6 +243,7 @@ void start_decrypt_dir(const fs::path &in , const fs::path& mapping_file) {
 
         fs::remove_all(backup);
         fs::remove(mapping_file);
+        fs::remove_all(tmpFolder);
     }
     catch (...) {
         if (fs::exists(tmpFolder))

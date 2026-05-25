@@ -3,6 +3,7 @@
 
 #include <string_view>
 #include <filesystem>
+#include <iostream>
 #include <unordered_map>
 #include <sys/stat.h>
 
@@ -38,6 +39,23 @@ inline fs::path make_temp_dir(const fs::path &base, const std::string& suffix = 
 
 inline void protect_file(std::string_view path){
     chmod(path.data(), S_IRUSR | S_IWUSR);
+}
+
+// ===== Permission Helpers =====
+
+inline fs::perms get_file_permissions(const fs::path& p)
+{
+    return fs::status(p).permissions();
+}
+
+inline void apply_file_permissions(const fs::path& p, fs::perms perms)
+{
+    try {
+        fs::permissions(p, perms, fs::perm_options::replace);
+    }
+    catch (...) {
+        std::cout << "Failed to apply permissions: " << p << "\n";
+    }
 }
 
 #endif

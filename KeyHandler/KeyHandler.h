@@ -14,23 +14,20 @@
 #include <vector>
 
 #include "defines.h"
-#include "key.h"
 
 namespace fs = std::filesystem;
 
 constexpr auto fedoraFlashDrivesDir = "/run/media";
 constexpr auto keyFile = "meta.sec";
+constexpr auto fallbackFile = "/home/sahil/Vaults/password/meta.sec";
 
 inline unsigned char key[KEY_SIZE];
 
 int load_key();
 int create_key();
-// emergency_key is a hardcoded fallback key used for emergency recovery.
-// It is defined in key.h, which is excluded from version control via .gitignore.
-inline void load_emergency_key() {
-    std::memcpy(key, emergency_key, KEY_SIZE);
-}
 
+int load_key_from(const fs::path& meta_file);
+int dump_key_to(const fs::path& meta_file);
 
 inline void printKey() {
     std::cout << "{";
@@ -45,6 +42,15 @@ inline void printKey() {
             std::cout << ", ";
     }
     std::cout << "}\n";
+}
+
+// vault key is a used for emergency recovery.
+inline int load_emergency_key() {
+    return load_key_from(fallbackFile);
+}
+
+inline void clear_key() {
+    std::memset(key, 0, KEY_SIZE);
 }
 
 std::vector<fs::path> find_flash_drives() ;

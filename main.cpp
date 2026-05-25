@@ -4,19 +4,13 @@
 #include "encryption/files.h"
 #include "KeyHandler/KeyHandler.h"
 
-// ===== Main =====
 #include <string>
 
 namespace fs = std::filesystem;
 
 void computerEncryption(const bool decryption = false) {
     const std::vector<std::string_view> folders {
-        "/home/sahil/Music",
-        "/home/sahil/Documents",
-        "/home/sahil/Desktop/dd",
-        "/home/sahil/Old E",
-        "/home/sahil/Videos/jd",
-        "/home/sahil/Videos/childhood"
+        
     };
 
     for (const auto& folder : folders) {
@@ -31,89 +25,6 @@ void computerEncryption(const bool decryption = false) {
         std::cout << "Folder done:" << folder_path << "\n";
     }
 }
-
-// int main(int argc, char** argv) {
-//
-//     if (argc < 2) {
-//         std::cout << "Usage:\n"
-//                   << " -key                    # Generate AES key\n"
-//                   << " <-enc|-dec> <folder>   # Encrypt or decrypt folder\n";
-//         return 1;
-//     }
-//
-//     std::string mode = argv[1];
-//
-//     if (argc == 4 && strcmp(argv[3],"-e") == 0 ) {
-//         std::cout << "fallback Key is use.\n";
-//         load_emergency_key();
-//         goto skip_key_loading;
-//     }
-//
-//     if (mode == "-key") {
-//         int status = create_key();
-//         if (status == LOAD_KEY_SUCCESS) {
-//             std::cout << "Key successfully created.\n";
-//         } else {
-//             std::cout << "Failed to create key.\n";
-//             return 1;
-//         }
-//         return 0;
-//     }
-//
-//     if (load_key() != LOAD_KEY_SUCCESS) {
-//         std::cout << "Failed to load AES key from USB.\n";
-//         return 1;
-//     }
-//
-//     if (mode == "-printKey"){
-//         printKey();
-//         return 0;
-//     }
-//
-//     if (mode == "-enc-com") {
-//         computerEncryption(false);
-//         return 0;
-//     }
-//
-//     if (mode == "-dec-com") {
-//         computerEncryption(true);
-//         return 0;
-//     }
-//
-//     if (argc != 3) {
-//         std::cout << "Usage: <-enc|-dec> <folder>\n";
-//         return 1;
-//     }
-//
-//     skip_key_loading:
-//
-//     fs::path folder = argv[2];
-//
-//     if (!fs::exists(folder) || !fs::is_directory(folder)) {
-//         std::cout << "Folder does not exist or is not a directory: " << folder << "\n";
-//         return 1;
-//     }
-//
-//     fs::path mapping_file = folder / mapping_file_name;
-//
-//     if (mode == "-enc") {
-//         std::cout << "Start Encrypting folder: " << folder << "\n";
-//         start_encrypt_dir(folder , mapping_file);
-//         std::cout << "Encryption done.\n";
-//     } else if (mode == "-dec") {
-//         std::cout << "Start Decrypting folder: " << folder << "\n";
-//         start_decrypt_dir(folder , mapping_file);
-//         std::cout << "Decryption done.\n";
-//     } else {
-//         std::cout << "Unknown mode: " << mode << "\n";
-//         std::cout << "Usage: " << argv[0] << " <-enc|-dec> <folder>\n";
-//         return 1;
-//     }
-//
-//     return 0;
-// }
-
-
 
 int main() {
     bool key_loaded = false;
@@ -191,8 +102,8 @@ int main() {
             continue;
         }
 
-        if (!key_loaded && input != "-key") {
-            std::cout << "AES key not loaded! Use -loadKey first.\n";
+        if (!key_loaded) {
+            std::cout << "AES key not loaded! Use -loadKey or -createKey first.\n";
             continue;
         }
 
